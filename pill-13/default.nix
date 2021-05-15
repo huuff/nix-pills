@@ -1,11 +1,15 @@
 let
-  nixpkgs = import <nixpkgs> {};
+  nixpkgs = import (builtins.fetchGit {
+    url = "https://github.com/nixos/nixpkgs";
+    ref = "refs/heads/release-14.12";
+    rev = "770822493e3962d795739fafd522e771bfe06e3d";
+  }) { };
   allPkgs = nixpkgs // pkgs;
   callPackage = path: overrides:
     let f = import path;
     in f ((builtins.intersectAttrs (builtins.functionArgs f) allPkgs) // overrides);
   pkgs = with nixpkgs; {
-    mkDerivation = import ../pill-12/inputs/autotools.nix nixpkgs;
+    mkDerivation = import ../pill-12/with-png/autotools.nix nixpkgs;
     hello = callPackage ../pill-12/inputs/hello.nix { };
     graphviz = callPackage ../pill-12/inputs/graphviz.nix { };
     graphvizCore = callPackage ../pill-12/inputs/graphviz.nix { gdSupport = false; };
