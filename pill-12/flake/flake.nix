@@ -16,6 +16,11 @@
       gdSupport = false;
     };
 
+
+    packages.x86_64-linux.graphviz = with pkgs; import ./graphviz.nix {
+      inherit mkDerivation gd fontconfig libjpeg bzip2;
+    };
+
     defaultPackage.x86_64-linux = self.packages.x86_64-linux.hello;
 
   };
