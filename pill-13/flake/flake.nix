@@ -2,7 +2,10 @@
 {
   description = "A repository flake";
 
-  inputs.nixpkgs.url = github:NixOS/nixpkgs/nixos-20.03;
+  inputs.nixpkgs = {
+    url = github:NixOS/nixpkgs/release-14.12;
+    flake = false;
+  };
 
   outputs = { self, nixpkgs }: let
     system = "x86_64-linux";

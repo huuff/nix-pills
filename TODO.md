@@ -1,1 +1,1 @@
-* pills 12 and onwards flakes' don't actually have graphviz with png support. This is due to the fact that the version of nixpkgs that nixpills used for the example is 14-12 and that version didn't have flake support. So I don't know how to do them yet.
+* Use flakeutils
