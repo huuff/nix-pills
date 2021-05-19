@@ -7,24 +7,26 @@
     flake = false;
   };
 
-  outputs = { self, nixpkgs }: let
-      system = "x86_64-linux";
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+
+  outputs = { self, nixpkgs, flake-utils }:
+  flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs { inherit system; };
       mkDerivation = import ./autotools.nix pkgs system;
-  in {
-    packages.x86_64-linux.hello = import ./hello.nix { inherit mkDerivation; };
+    in rec {
+    packages.hello = import ./hello.nix { inherit mkDerivation; };
 
-    packages.x86_64-linux.graphvizCore = with pkgs; import ./graphviz.nix {
+    packages.graphvizCore = with pkgs; import ./graphviz.nix {
       inherit mkDerivation gd fontconfig libjpeg bzip2;
       gdSupport = false;
     };
 
 
-    packages.x86_64-linux.graphviz = with pkgs; import ./graphviz.nix {
+    packages.graphviz = with pkgs; import ./graphviz.nix {
       inherit mkDerivation gd fontconfig libjpeg bzip2;
     };
 
-    defaultPackage.x86_64-linux = self.packages.x86_64-linux.hello;
+    defaultPackage = packages.hello;
 
-  };
+  });
 }

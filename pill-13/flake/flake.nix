@@ -7,25 +7,28 @@
     flake = false;
   };
 
-  outputs = { self, nixpkgs }: let
-    system = "x86_64-linux";
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+
+
+  outputs = { self, nixpkgs, flake-utils }:
+  flake-utils.lib.eachDefaultSystem (system: let 
     pkgs = import nixpkgs { inherit system; };
     allPkgs = pkgs // self.packages.x86_64-linux;
     callPackage = path: overrides:
     let 
       f = import path;
     in f ((builtins.intersectAttrs (builtins.functionArgs f) allPkgs) // overrides);
-  in {
+  in rec {
 
-    packages.x86_64-linux.mkDerivation = import ../../pill-12/flake/autotools.nix pkgs system;
+    packages.mkDerivation = import ../../pill-12/flake/autotools.nix pkgs system;
 
-    packages.x86_64-linux.hello = callPackage ../../pill-12/flake/hello.nix {};
+    packages.hello = callPackage ../../pill-12/flake/hello.nix {};
 
-    packages.x86_64-linux.graphviz = callPackage ../../pill-12/flake/graphviz.nix {};
+    packages.graphviz = callPackage ../../pill-12/flake/graphviz.nix {};
 
-    packages.x86_64-linux.graphvizCore = callPackage ../../pill-12/flake/graphviz.nix { gdSupport = false; };
+    packages.graphvizCore = callPackage ../../pill-12/flake/graphviz.nix { gdSupport = false; };
 
-    defaultPackage.x86_64-linux = self.packages.x86_64-linux.hello;
+    defaultPackage = packages.hello;
 
-  };
+  });
 }

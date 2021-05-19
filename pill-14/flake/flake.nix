@@ -7,25 +7,28 @@
     flake = false;
   };
 
-  outputs = { self, nixpkgs }: let
-    system = "x86_64-linux";
-    pkgs = import nixpkgs { inherit system; };
-    allPkgs = pkgs // self.packages.x86_64-linux;
-    lib = import ../lib.nix;
-    callPackage = path: overrides:
-    let f = import path;
-    in lib.makeOverridable f ((builtins.intersectAttrs (builtins.functionArgs f) allPkgs) // overrides);
-  in {
+  inputs.flake-utils.url = "github:numtide/flake-utils";
 
-    packages.x86_64-linux.mkDerivation = import ../../pill-12/flake/autotools.nix pkgs system;
 
-    packages.x86_64-linux.hello = callPackage ../../pill-12/flake/hello.nix {};
+    outputs = { self, nixpkgs, flake-utils }:
+    flake-utils.lib.eachDefaultSystem (system: let 
+      pkgs = import nixpkgs { inherit system; };
+      allPkgs = pkgs // self.packages.x86_64-linux;
+      lib = import ../lib.nix;
+      callPackage = path: overrides:
+      let f = import path;
+      in lib.makeOverridable f ((builtins.intersectAttrs (builtins.functionArgs f) allPkgs) // overrides);
+    in rec {
 
-    packages.x86_64-linux.graphviz = callPackage ../../pill-12/flake/graphviz.nix {};
+    packages.mkDerivation = import ../../pill-12/flake/autotools.nix pkgs system;
 
-    packages.x86_64-linux.graphvizCore = self.packages.x86_64-linux.graphviz.override {gdSupport = false; };
+    packages.hello = callPackage ../../pill-12/flake/hello.nix {};
 
-    defaultPackage.x86_64-linux = self.packages.x86_64-linux.hello;
+    packages.graphviz = callPackage ../../pill-12/flake/graphviz.nix {};
 
-  };
+    packages.graphvizCore = packages.graphviz.override {gdSupport = false; };
+
+    defaultPackage = packages.hello;
+
+  });
 }
